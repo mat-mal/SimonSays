@@ -38,13 +38,18 @@ private:
     int lights_PIN;
     int buzzerFreq;
 public:
-    bool ispush;
-    Interface(ButtonsPIN button, LightsPIN lights, BuzzerFreq buzFreq);
-    void PushButton();
-    const int BUZZER_PIN = 3;
+    bool isPush;
     const int lightTime = 500;
     unsigned long light_timer;
-    void ToggleLight();
+
+    Interface(ButtonsPIN button, LightsPIN lights, BuzzerFreq buzFreq);
+    bool* PushButton();
+    void ToggleLight(bool* isOn);
 };
+
+extern Interface Red;
+extern Interface Yellow;
+extern Interface Green;
+extern Interface Blue;
 
 #endif
