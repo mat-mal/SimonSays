@@ -1,47 +1,51 @@
 #include "Simon.h"
+#include "Player.h"
+#include "Game.h"
 
 Simon simon;
 
 Simon::Simon()
 {
-    countStages = 0;
+    countRounds = 0;
     countSteps = 0;
     simonLights_timer = 0;
-    redOn = false;
-    yellowOn = false;
-    greenOn = false;
-    blueOn = false;
+    isSimonTurn = false;
 }
 
-void Simon::SimonLights()
+void Simon::SimonTurn()
 {
-    if(countStages < difficultyLevel && Timer(interval, &simonLights_timer))
+    if(countRounds < simonDifficulty && isSimonTurn && Timer(interval, &simonLights_timer))
     {
-        Serial.print(countStages);
-        if(countSteps < (countStages + 1))
+        if(countSteps < (countRounds + 1))
         {
-            Serial.print(countSteps);
-            series[countStages] = random(Light_RED, Light_BLUE + 1);
-            stages[countStages][countSteps] = series[countSteps];
-            Serial.print(" ");
-            Serial.println(stages[countStages][countSteps]);
-            if(stages[countStages][countSteps] == Light_RED) redOn = true;
-            if(stages[countStages][countSteps] == Light_YELLOW) yellowOn = true;
-            if(stages[countStages][countSteps] == Light_GREEN) greenOn = true;
-            if(stages[countStages][countSteps] == Light_BLUE) blueOn = true;   
+            LightsOrder[countRounds] = random(RED_LED_PIN, BLUE_LED_PIN + 1);
+            rounds[countRounds][countSteps] = LightsOrder[countSteps];
+            if(rounds[countRounds][countSteps] == RED_LED_PIN) Red->isLightON = true;
+            if(rounds[countRounds][countSteps] == YELLOW_LED_PIN) Yellow->isLightON = true;
+            if(rounds[countRounds][countSteps] == GREEN_LED_PIN) Green->isLightON = true;
+            if(rounds[countRounds][countSteps] == BLUE_LED_PIN) Blue->isLightON = true;   
             countSteps++;
-
         }
-        if((countStages + 1) == countSteps)
+        else
         {
-            countStages++;
-            countSteps = 0;
+            isSimonTurn = false;
+            player.isPlayerTurn = true;
         }
-        
     }
-    // Serial.println(stages[countStages][countSteps]);
-    Red.ToggleLight(&redOn);
-    Yellow.ToggleLight(&yellowOn);
-    Green.ToggleLight(&greenOn);
-    Blue.ToggleLight(&blueOn);  
+
+    game.IsPlayerCorrect(countRounds);
+    if((countRounds + 1) == countSteps && player.playerCounter > countRounds && !isSimonTurn && game.isCorrect && Timer(interval, &simonLights_timer))
+    {
+        countRounds++;
+        countSteps = 0;
+        player.playerCounter = 0;
+        isSimonTurn = true;
+        player.isPlayerTurn = false;
+        memset(player.LightsOrder, 0, sizeof(player.LightsOrder));
+    }
+}
+
+void Simon::ResetSimon()
+{
+    simon = Simon();
 }

@@ -1,46 +1,59 @@
 #include "Interface.h"
 
-Interface Red(Button_RED, Light_RED, Freq_RED);
-Interface Yellow(Button_YELLOW, Light_YELLOW, Freq_YELLOW);
-Interface Green(Button_GREEN, Light_GREEN, Freq_GREEN);
-Interface Blue(Button_BLUE, Light_BLUE, Freq_BLUE);
+Interface Colors[numberOfColors] = {Interface(RED_BUTTON_PIN, RED_LED_PIN, RED_FREQ), Interface(YELLOW_BUTTON_PIN, YELLOW_LED_PIN, YELLOW_FREQ), Interface(GREEN_BUTTON_PIN, GREEN_LED_PIN, GREEN_FREQ), Interface(BLUE_BUTTON_PIN, BLUE_LED_PIN, BLUE_FREQ)};
+Interface* Red = &Colors[RED];
+Interface* Yellow = &Colors[YELLOW];
+Interface* Green = &Colors[GREEN];
+Interface* Blue = &Colors[BLUE];
 
-Interface::Interface(ButtonsPIN button, LightsPIN lights, BuzzerFreq buzFreq)
+Interface::Interface(ButtonsPIN button, LEDPIN lights, BuzzerFreq buzFreq)
 {
     button_PIN = button;
-    lights_PIN = lights;
+    led_PIN = lights;
     buzzerFreq = buzFreq;
     button_timer = 0;
     light_timer = 0;    
     lastState = HIGH;
     isPush = false;
+    isLightON = false;
+    isMuted = false;
+    selectedLight = 0;
 }
 
-bool* Interface::PushButton()
+int Interface::PushButton()
 {
     int currentState = digitalRead(button_PIN);
 
-    if(currentState == LOW && lastState == HIGH && (millis() - button_timer) > 20)
+    if(currentState == LOW && lastState == HIGH && (millis() - button_timer) > 50)
     {
-        isPush = true;
+        selectedLight = led_PIN;
+    }
+    else
+    {
+        selectedLight = 0;
     }
     lastState = currentState;
 
-    return &isPush;
+    return selectedLight;
 }
 
-void Interface::ToggleLight(bool* isOn)           //Spróbować, żeby buzzer nie jęczał po wciśnięciu wielu przycisków
+void Interface::ToggleLight()           //Try to make that buzzer don't squeak when two or more buttons are pushed
 {
-    if(*isOn)
+    if(isLightON)
     {
-        digitalWrite(lights_PIN, HIGH);
-        tone(BUZZER_PIN, buzzerFreq);
-            
+        digitalWrite(led_PIN, HIGH);
+
+        if(!isMuted)
+        {
+            tone(BUZZER_PIN, buzzerFreq);   
+        }
+
         if(Timer(lightTime, &light_timer))
         {
-            digitalWrite(lights_PIN, LOW);
+            digitalWrite(led_PIN, LOW);
             noTone(BUZZER_PIN);
-            *isOn = false;
+            isLightON = false;
+            isMuted = false;
         }
     }
 }

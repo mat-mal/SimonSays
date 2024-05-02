@@ -4,29 +4,38 @@
 #include "Timer.h"
 
 const int BUZZER_PIN = 3;
+const int numberOfColors = 4;
+
+enum ColorNumber
+{
+    RED = 0,
+    YELLOW,
+    GREEN,
+    BLUE
+};
 
 enum ButtonsPIN
 {
-    Button_RED = 4,
-    Button_YELLOW = 5,
-    Button_GREEN = 6,
-    Button_BLUE = 7
+    RED_BUTTON_PIN = 4,
+    YELLOW_BUTTON_PIN,
+    GREEN_BUTTON_PIN,
+    BLUE_BUTTON_PIN
 };
 
-enum LightsPIN
+enum LEDPIN
 {
-    Light_RED = 9,
-    Light_YELLOW = 10,
-    Light_GREEN = 11,
-    Light_BLUE = 12
+    RED_LED_PIN = 9,
+    YELLOW_LED_PIN,
+    GREEN_LED_PIN,
+    BLUE_LED_PIN
 };
 
 enum BuzzerFreq
 {
-    Freq_RED = 350,
-    Freq_YELLOW = 500,
-    Freq_GREEN = 700,
-    Freq_BLUE = 1450
+    RED_FREQ = 350,
+    YELLOW_FREQ = 500,
+    GREEN_FREQ = 700,
+    BLUE_FREQ = 1450
 };
 
 class Interface
@@ -35,21 +44,25 @@ private:
     unsigned long button_timer;
     int lastState;
     int button_PIN;
-    int lights_PIN;
+    int led_PIN;
     int buzzerFreq;
+    int selectedLight;
 public:
     bool isPush;
+    bool isMuted;
+    bool isLightON;
     const int lightTime = 500;
     unsigned long light_timer;
 
-    Interface(ButtonsPIN button, LightsPIN lights, BuzzerFreq buzFreq);
-    bool* PushButton();
-    void ToggleLight(bool* isOn);
+    Interface(ButtonsPIN button, LEDPIN lights, BuzzerFreq buzFreq);
+    int PushButton();
+    void ToggleLight();
 };
 
-extern Interface Red;
-extern Interface Yellow;
-extern Interface Green;
-extern Interface Blue;
+extern Interface *Red;
+extern Interface *Yellow;
+extern Interface *Green;
+extern Interface *Blue;
+extern Interface Colors[numberOfColors];
 
 #endif
